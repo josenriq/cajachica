@@ -20,12 +20,6 @@ var controller = Botkit.slackbot({
 	debug: false
 });
 
-controller.setupWebserver(process.env.port || 3000, function(err, server) {
-	server.get('/', function(req, res) {
-		res.send(':)');
-	});
-});
-
 controller.spawn({
   token: process.env.SLACK_TOKEN
 }).startRTM(function(err) {

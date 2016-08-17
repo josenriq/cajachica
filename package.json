@@ -1,0 +1,14 @@
+{
+  "name": "cajachica",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "José Enrique Bolaños",
+  "license": "ISC",
+  "dependencies": {
+    "botkit": "^0.2.2"
+  }
+}

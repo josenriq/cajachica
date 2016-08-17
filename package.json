@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js"
   },
   "author": "José Enrique Bolaños",
   "license": "ISC",

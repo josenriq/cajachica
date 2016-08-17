@@ -12,8 +12,8 @@ var firebase = require('firebase');
 var numeral = require('numeral');
 
 firebase.initializeApp({
-  apiKey: "AIzaSyCW1lP9MJkH_qSSPMRev9TIQ7_g9qHRrqA",
-  databaseURL: "https://cajachica-da123.firebaseio.com"
+  apiKey: process.env.FIREBASE_API_KEY,
+  databaseURL: process.env.FIREBASE_DATABASE_URL
 });
 
 var controller = Botkit.slackbot({

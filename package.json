@@ -9,6 +9,8 @@
   "author": "José Enrique Bolaños",
   "license": "ISC",
   "dependencies": {
-    "botkit": "^0.2.2"
+    "botkit": "^0.2.2",
+    "firebase": "^3.3.0",
+    "numeral": "^1.5.3"
   }
 }

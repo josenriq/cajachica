@@ -1,22 +1,167 @@
+if (!process.env.SLACK_TOKEN) {
+  console.log('Error: Specify SLACK_TOKEN in environment');
+  process.exit(1);
+}
+if (!process.env.FIREBASE_API_KEY || !process.env.FIREBASE_DATABASE_URL) {
+  console.log('Error: Specify FIREBASE_API_KEY and FIREBASE_DATABASE_URL in environment');
+  process.exit(1);	
+}
+
 var Botkit = require('botkit/lib/Botkit.js');
+var firebase = require('firebase');
+var numeral = require('numeral');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyCW1lP9MJkH_qSSPMRev9TIQ7_g9qHRrqA",
+  databaseURL: "https://cajachica-da123.firebaseio.com"
+});
 
 var controller = Botkit.slackbot({
-	debug: true
+	debug: false
 });
 
-controller.setupWebserver(process.env.port || 3000, function(err, webserver) {
-	controller.createWebhookEndpoints(webserver);
+controller.spawn({
+  token: process.env.SLACK_TOKEN
+}).startRTM(function(err) {
+  if (err) {
+    throw new Error(err);
+  }
 });
 
-controller.on('cajachica', function(bot, message) {
-  // check message.command
-  // and maybe message.text...
-  // use EITHER replyPrivate or replyPublic...
-  bot.replyPrivate(message, 'This is a private reply to the ' + message.command + ' slash command!');
+function getTotal() {
+	return firebase.database().ref('/cajachica').once('value').then(function(snapshot) {
+		return snapshot.val().total;
+	});
+}
 
-  // and then continue to use replyPublicDelayed or replyPrivateDelayed
-  //bot.replyPublicDelayed(message, 'This is a public reply to the ' + message.command + ' slash command!');
+function setTotal(total) {
+	firebase.database().ref('/cajachica').set({
+		total: total
+	});
+}
 
-  //bot.replyPrivateDelayed(message, ':dash:');
+function addToTotal(value) {
+	return getTotal().then(function(total) {
+		var newTotal = total + value;
+		setTotal(newTotal);
+		return newTotal;
+	});
+}
 
+function toPrettyNumber(number) {
+	return '`' + numeral(number).format('0,0.00') + '`';
+}
+
+function findNumber(message) {
+	var parts = message.split(/\s+/);
+	for (var i = 0; i < parts.length; i++) {
+		var value = parseFloat(parts[i], 10);
+		if (!isNaN(value))
+			return value;
+	}
+	return null;
+}
+
+controller.hears(['reset', 'reiniciar'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+	bot.startConversation(message, function(error, convo) {
+		convo.ask('Ok. ¿Con cuánto reinicio la cuenta?', function(response, convo) {
+			var number = findNumber(response.text);
+			if (!number && number !== 0) {
+				convo.say('¡No dijiste ningún número! Así no se puede... chao');
+			}
+			else {
+				setTotal(number);
+				convo.say('Listo. La cuenta ahora es ' + toPrettyNumber(number));
+			}
+			convo.next();
+		});
+	});
 });
+
+controller.hears(['remover', 'restar', 'gasto', 'subtract', 'decrease', 'expense'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+	bot.startConversation(message, function(error, convo) {
+		convo.ask('¿Cuánta plata querés restar?', function(response, convo) {
+			var number = findNumber(response.text);
+			if (!number && number !== 0) {
+				convo.say('¡No dijiste ningún número! Así no se puede... chao');
+			}
+			else {
+				addToTotal(-number).then(function(newTotal) {
+					convo.ask('Listo. Resté ' + toPrettyNumber(number) + ' y el total ahora es ' + toPrettyNumber(newTotal) + '. ¿En qué gastaste esta plata?', function(response, convo) {
+						if (/birra|cerveza|guaro|drogas|weed/i.test(response.text)) {
+							convo.say('Ah bueeeno, mientras haya sido en eso todo bien!');
+						}
+						else if (/que le importa|qué le importa|what do you care|what do u care|fuck you/i.test(response.text)) {
+							convo.say('Está bien. Comé mucha *** entonces!');
+						}
+						else {
+							convo.say('Ok listo :)');
+						}
+						convo.next();
+					});
+				});
+			}
+			convo.next();
+		});
+	});
+});
+
+controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+	bot.startConversation(message, function(error, convo) {
+		convo.ask('¿Cuánta plata querés añadir?', function(response, convo) {
+			var number = findNumber(response.text);
+			if (!number && number !== 0) {
+				convo.say('¡No dijiste ningún número! Así no se puede... chao');
+			}
+			else {
+				addToTotal(number).then(function(newTotal) {
+					convo.say('Listo. Añadí ' + toPrettyNumber(number) + ' y el total ahora es ' + toPrettyNumber(newTotal));
+				});
+			}
+			convo.next();
+		});
+	});
+});
+
+controller.hears(['hello', 'hi', 'hola', 'holis', 'status', 'cuánto', 'cuanto', 'cuenta', 'how much'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+	return getTotal().then(function(total) {
+		bot.reply(message, 'Yo yo! Ahorita tengo ' + toPrettyNumber(total) + ' en mi panza.');
+	});
+});
+
+/*controller.hears(['attach'],['direct_message','direct_mention'],function(bot,message) {
+
+  var attachments = [];
+  var attachment = {
+    title: 'This is an attachment',
+    color: '#FFCC99',
+    fields: [],
+  };
+
+  attachment.fields.push({
+    label: 'Field',
+    value: 'A longish value',
+    short: false,
+  });
+
+  attachment.fields.push({
+    label: 'Field',
+    value: 'Value',
+    short: true,
+  });
+
+  attachment.fields.push({
+    label: 'Field',
+    value: 'Value',
+    short: true,
+  });
+
+  attachments.push(attachment);
+
+  bot.reply(message,{
+    text: 'See below...',
+    attachments: attachments,
+  },function(err,resp) {
+    console.log(err,resp);
+  });
+});*/

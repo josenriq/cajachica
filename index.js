@@ -149,14 +149,11 @@ controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'trans
 		Object.keys(transactions).forEach(function(key) {
 			var transaction = transactions[key];
 			attachments.push({
-				title: transaction.description,
+				title: transaction.amount + ' => ' + transaction.description,
+				color: transaction.amount < 0 ? '#c0392b' : '#27ae60',
 				fields: [{
 					label: 'Date',
 					value: moment(transaction.createdAt).format('dddd, MMMM Do YYYY')
-				}, {
-					label: 'Amount',
-					value: transaction.amount,
-					color: transaction.amount < 0 ? '#c0392b' : '#27ae60'
 				}]
 			});
 		});

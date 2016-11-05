@@ -151,7 +151,7 @@ controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'trans
 				title: transaction.description,
 				fields: [{
 					label: 'Date',
-					value: transaction.createdAt
+					value: new Date(transaction.createdAt).toString()
 				}, {
 					label: 'Amount',
 					value: transaction.amount,

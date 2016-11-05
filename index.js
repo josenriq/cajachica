@@ -144,8 +144,25 @@ controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_me
 
 controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'transactions'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
 	return listTransactions().then(function(transactions) {
-		console.log(transactions);
-		bot.reply(JSON.stringify(transactions));
+		var attachments = [];
+		Object.keys(transactions).forEach(function(key) {
+			var transaction = transactions[key];
+			attachments.push({
+				title: transaction.description,
+				fields: [{
+					label: 'Date',
+					value: transaction.createdAt
+				}, {
+					label: 'Amount',
+					value: transaction.amount,
+					color: transaction.amount < 0 ? '#c0392b' : '#27ae60'
+				}]
+			});
+		});
+		bot.reply(message, {
+			text: 'Aquí va el reporte',
+			attachments: attachments
+		});
 	});
 });
 
@@ -154,40 +171,3 @@ controller.hears(['hello', 'hi', 'hola', 'holis', 'status', 'cuánto', 'cuanto',
 		bot.reply(message, 'Yo yo! Ahorita tengo ' + toPrettyNumber(total) + ' en mi panza.');
 	});
 });
-
-/*controller.hears(['attach'],['direct_message','direct_mention'],function(bot,message) {
-
-  var attachments = [];
-  var attachment = {
-    title: 'This is an attachment',
-    color: '#FFCC99',
-    fields: [],
-  };
-
-  attachment.fields.push({
-    label: 'Field',
-    value: 'A longish value',
-    short: false,
-  });
-
-  attachment.fields.push({
-    label: 'Field',
-    value: 'Value',
-    short: true,
-  });
-
-  attachment.fields.push({
-    label: 'Field',
-    value: 'Value',
-    short: true,
-  });
-
-  attachments.push(attachment);
-
-  bot.reply(message,{
-    text: 'See below...',
-    attachments: attachments,
-  },function(err,resp) {
-    console.log(err,resp);
-  });
-});*/

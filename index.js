@@ -58,7 +58,9 @@ function addTransaction(value, description) {
 }
 
 function listTransactions() {
-
+	return firebase.database().ref('/transactions').orderByChild('createdAt').once('value').then(function(snapshot) {
+		return snapshot.value();
+	});
 }
 
 function toPrettyNumber(number) {
@@ -140,8 +142,11 @@ controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_me
 	});
 });
 
-controller.hears(['listar', 'estatus', 'reporte', 'list', 'status', 'report'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
-	bot.reply('Esto está pendiente chicosss :)');
+controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'transactions'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+	bot.reply('Un momento...');
+	return listTransactions().then(function(transactions) {
+		bot.reply(JSON.stringify(transactions));
+	});
 });
 
 controller.hears(['hello', 'hi', 'hola', 'holis', 'status', 'cuánto', 'cuanto', 'cuenta', 'how much'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {

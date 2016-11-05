@@ -51,7 +51,7 @@ function addToTotal(value) {
 function addTransaction(value, description) {
 	var transaction = firebase.database().ref('/transactions').push();
   return transaction.set({
-  	date: new Date(),
+  	createdAt: Date.now(),
   	amount: value,
   	description: description && description.length > 0 ? description : '(Sin descripción)'
   });

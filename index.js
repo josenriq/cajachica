@@ -143,12 +143,8 @@ controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_me
 });
 
 controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'transactions'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
-	bot.startConversation(message, function(error, convo) {
-		convo.say('Un momento...');
-		return listTransactions().then(function(transactions) {
-			convo.say(JSON.stringify(transactions));
-			convo.next();
-		});
+	return listTransactions().then(function(transactions) {
+		bot.reply(JSON.stringify(transactions));
 	});
 });
 

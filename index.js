@@ -58,7 +58,7 @@ function addTransaction(value, description) {
 }
 
 function listTransactions() {
-	return firebase.database().ref('/transactions').orderByChild('createdAt').once('value').then(function(snapshot) {
+	return firebase.database().ref('/transactions').orderByChild('createdAt').once('value', function(snapshot) {
 		return snapshot.val();
 	});
 }

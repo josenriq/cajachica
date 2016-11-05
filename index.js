@@ -10,6 +10,7 @@ if (!process.env.FIREBASE_API_KEY || !process.env.FIREBASE_DATABASE_URL) {
 var Botkit = require('botkit/lib/Botkit.js');
 var firebase = require('firebase');
 var numeral = require('numeral');
+var moment = require('moment');
 
 firebase.initializeApp({
   apiKey: process.env.FIREBASE_API_KEY,
@@ -151,7 +152,7 @@ controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'trans
 				title: transaction.description,
 				fields: [{
 					label: 'Date',
-					value: new Date(transaction.createdAt).toString()
+					value: moment(transaction.createdAt).format('dddd, MMMM Do YYYY')
 				}, {
 					label: 'Amount',
 					value: transaction.amount,

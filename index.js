@@ -48,6 +48,18 @@ function addToTotal(value) {
 	});
 }
 
+function addTransaction(value, description) {
+  return firebase.database().ref('/transactions').add({
+  	date: new Date(),
+  	amount: value,
+  	description: description && description.length > 0 ? '(Sin descripción)'
+  });
+}
+
+function listTransactions() {
+
+}
+
 function toPrettyNumber(number) {
 	return '`' + numeral(number).format('0,0.00') + '`';
 }
@@ -71,6 +83,7 @@ controller.hears(['reset', 'reiniciar'], ['direct_message', 'direct_mention', 'm
 			}
 			else {
 				setTotal(number);
+				addTransaction(number, '(Reset)');
 				convo.say('Listo. La cuenta ahora es ' + toPrettyNumber(number));
 			}
 			convo.next();
@@ -88,6 +101,8 @@ controller.hears(['remover', 'restar', 'gasto', 'subtract', 'decrease', 'expense
 			else {
 				addToTotal(-number).then(function(newTotal) {
 					convo.ask('Listo. Resté ' + toPrettyNumber(number) + ' y el total ahora es ' + toPrettyNumber(newTotal) + '. ¿En qué gastaste esta plata?', function(response, convo) {
+						addTransaction(-number, response.text);
+
 						if (/birra|cerveza|guaro|drogas|weed/i.test(response.text)) {
 							convo.say('Ah bueeeno, mientras haya sido en eso todo bien!');
 						}
@@ -114,6 +129,7 @@ controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_me
 				convo.say('¡No dijiste ningún número! Así no se puede... chao');
 			}
 			else {
+				addTransaction(number, '(Abono)');
 				addToTotal(number).then(function(newTotal) {
 					convo.say('Listo. Añadí ' + toPrettyNumber(number) + ' y el total ahora es ' + toPrettyNumber(newTotal));
 				});
@@ -121,6 +137,10 @@ controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_me
 			convo.next();
 		});
 	});
+});
+
+controller.hears(['listar', 'estatus', 'reporte', 'list', 'status', 'report'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
+	bot.reply('Esto está pendiente chicosss :)');
 });
 
 controller.hears(['hello', 'hi', 'hola', 'holis', 'status', 'cuánto', 'cuanto', 'cuenta', 'how much'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {

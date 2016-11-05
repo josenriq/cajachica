@@ -52,7 +52,7 @@ function addTransaction(value, description) {
   return firebase.database().ref('/transactions').add({
   	date: new Date(),
   	amount: value,
-  	description: description && description.length > 0 ? '(Sin descripción)'
+  	description: description && description.length > 0 ? description : '(Sin descripción)'
   });
 }
 

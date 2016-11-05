@@ -144,6 +144,7 @@ controller.hears(['agregar', 'añadir', 'sumar', 'add', 'increase'], ['direct_me
 
 controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'transactions'], ['direct_message', 'direct_mention', 'mention'], function(bot, message) {
 	return listTransactions().then(function(transactions) {
+		console.log(transactions);
 		bot.reply(JSON.stringify(transactions));
 	});
 });

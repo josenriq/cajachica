@@ -64,8 +64,11 @@ function listTransactions() {
 	});
 }
 
-function toPrettyNumber(number) {
-	return '`' + numeral(number).format('0,0.00') + '`';
+function toPrettyNumber(number, quotes) {
+	var str = numeral(number).format('0,0.00');
+	if (quotes !== false)
+		str = '`' + str + '`';
+	return str;
 }
 
 function findNumber(message) {
@@ -149,7 +152,7 @@ controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'trans
 		Object.keys(transactions).forEach(function(key) {
 			var transaction = transactions[key];
 			attachments.push({
-				title: transaction.amount + ' => ' + transaction.description,
+				title: toPrettyNumber(transaction.amount) + ' => ' + transaction.description,
 				color: transaction.amount < 0 ? '#c0392b' : '#27ae60',
 				fields: [{
 					label: 'Date',

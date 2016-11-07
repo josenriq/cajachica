@@ -152,7 +152,7 @@ controller.hears(['listar', 'reporte', 'transacciones', 'list', 'report', 'trans
 		Object.keys(transactions).forEach(function(key) {
 			var transaction = transactions[key];
 			attachments.push({
-				title: toPrettyNumber(transaction.amount, false) + ' => ' + transaction.description,
+				title: (transaction.amount > 0 ? '+' : '') + toPrettyNumber(transaction.amount, false) + ' => ' + transaction.description,
 				color: transaction.amount < 0 ? '#c0392b' : '#27ae60',
 				fields: [{
 					label: 'Date',
